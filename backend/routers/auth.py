@@ -158,7 +158,14 @@ async def register_user(user: UserCreate):
     # Save user
     users[user.email] = user_data
     save_users(users)
-    
+
+    # Initialize progress for this user (per-cadet progress tracking)
+    try:
+        from routers.progress import initialize_progress_for_user
+        initialize_progress_for_user(user_id)
+    except Exception as e:
+        print(f"[WARN] Could not initialize progress for user {user_id}: {e}")
+
     # Return user data (without password)
     return UserResponse(**{k: v for k, v in user_data.items() if k != "hashed_password"})
 

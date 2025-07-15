@@ -1,7 +1,7 @@
 // Video API service for frontend
 // This handles all communication with the backend video API
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface Video {
   id: string;

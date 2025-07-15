@@ -12,7 +12,7 @@ import {
 } from './types'
 
 // Use your LAN IP so mobile devices can access the backend
-const API_BASE = 'http://192.168.1.8:8000/api/progress'
+const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/progress`
 
 // API functions for progress dashboard
 export const progressApi = {

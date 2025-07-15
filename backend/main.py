@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-# from routers.chat import router as chat_router  # Temporarily disabled
+from routers.chat import router as chat_router
 from routers.auth import router as auth_router
 from routers.quiz import router as quiz_router
 from routers.syllabus import router as syllabus_router
@@ -27,7 +27,7 @@ app.add_middleware(
 )
 
 # Include routers
-# app.include_router(chat_router, prefix="/api")  # Temporarily disabled
+app.include_router(chat_router, prefix="/api")
 app.include_router(auth_router, prefix="/api/auth")  # Enable auth API
 app.include_router(quiz_router, prefix="/api")  # Enable quiz API
 app.include_router(syllabus_router, prefix="/api/syllabus")  # Enable syllabus API

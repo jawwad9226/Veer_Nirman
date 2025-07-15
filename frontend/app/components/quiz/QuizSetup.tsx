@@ -5,8 +5,16 @@ import { Brain, Loader, Clock, Users, Target, Zap, ChevronDown, Upload, FileText
 import { QUIZ_DIFFICULTIES } from './types'
 import { getTopics } from './api'
 
+interface QuizCustomData {
+  customTopic?: string;
+  fileContent?: string;
+  fileType?: string;
+  subtopics?: string[];
+  topicsCovered?: string[];
+}
+
 interface QuizSetupProps {
-  onStartQuiz: (topic: string, difficulty: string, numQuestions: number, timedMode: boolean, customData?: { customTopic?: string, fileContent?: string, fileType?: string }) => void
+  onStartQuiz: (topic: string, difficulty: string, numQuestions: number, timedMode: boolean, customData?: QuizCustomData) => void
   loading: boolean
   assessmentTopic?: {
     title: string;

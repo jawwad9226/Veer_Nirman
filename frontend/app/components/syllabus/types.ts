@@ -98,7 +98,7 @@ export interface SyllabusViewMode {
 
 // Constants
 // Use your LAN IP so mobile devices can access the backend
-export const SYLLABUS_API_BASE = 'http://192.168.1.8:8000/api/syllabus'
+export const SYLLABUS_API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/syllabus`
 export const DEFAULT_ITEMS_PER_PAGE = 10
 export const DIFFICULTY_LEVELS = ['JD/JW', 'SD/SW', 'Senior Wing']
 

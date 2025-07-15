@@ -95,7 +95,7 @@ export async function checkSyllabusHealth(): Promise<{ status: string, service: 
 }
 
 // PDF API functions
-const PDF_API_BASE = 'http://localhost:8000/api/pdf'
+const PDF_API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/pdf`
 
 async function fetchPdfApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   try {

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 import json
 import random
+import os
 from app_models import (
     ProgressSummary, TopicPerformance, LearningRecommendation,
     ProgressAnalyticsResponse, ProgressFilterRequest, Achievement,
@@ -12,12 +13,28 @@ from app_models import (
 router = APIRouter()
 
 # Mock data storage (replace with actual database in production)
-class ProgressDataStore:
-    def __init__(self):
-        self.quiz_results = self._generate_mock_quiz_data()
-        self.video_progress = self._generate_mock_video_data()
-        self.study_sessions = self._generate_mock_study_sessions()
-        self.achievements = self._generate_mock_achievements()
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+def get_progress_file(user_id: str) -> str:
+    return os.path.join(DATA_DIR, f"progress_{user_id}.json")
+
+def load_user_progress(user_id: str) -> dict:
+    path = get_progress_file(user_id)
+    if not os.path.exists(path):
+        return {"quiz_results": [], "video_progress": [], "study_sessions": [], "achievements": []}
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def save_user_progress(user_id: str, data: dict):
+    path = get_progress_file(user_id)
+    with open(path, 'w') as f:
+        json.dump(data, f, default=str)
+
+# Utility to initialize progress for a new cadet
+def initialize_progress_for_user(user_id: str):
+    path = get_progress_file(user_id)
+    if not os.path.exists(path):
+        save_user_progress(user_id, {"quiz_results": [], "video_progress": [], "study_sessions": [], "achievements": []})
     
     def _generate_mock_quiz_data(self) -> List[Dict]:
         """Generate mock quiz results for demonstration"""
@@ -131,28 +148,30 @@ class ProgressDataStore:
             }
         ]
 
-# Initialize data store
-data_store = ProgressDataStore()
+
 
 @router.get("/summary", response_model=ProgressSummary)
-async def get_progress_summary():
-    """Get overall progress summary statistics"""
-    quiz_scores = [q["score"] for q in data_store.quiz_results]
-    video_completed = sum(1 for v in data_store.video_progress if v["completed"])
-    total_study_time = sum(s["duration"] for s in data_store.study_sessions)
-    
+async def get_progress_summary(request: Request, user_id: str):
+    """Get overall progress summary statistics for a user"""
+    progress = load_user_progress(user_id)
+    quiz_results = progress.get("quiz_results", [])
+    video_progress = progress.get("video_progress", [])
+    study_sessions = progress.get("study_sessions", [])
+    quiz_scores = [q["score"] for q in quiz_results]
+    video_completed = sum(1 for v in video_progress if v.get("completed"))
+    total_study_time = sum(s.get("duration", 0) for s in study_sessions)
     return ProgressSummary(
-        total_quizzes=len(data_store.quiz_results),
+        total_quizzes=len(quiz_results),
         average_score=round(sum(quiz_scores) / len(quiz_scores), 1) if quiz_scores else 0,
         best_score=max(quiz_scores) if quiz_scores else 0,
         worst_score=min(quiz_scores) if quiz_scores else 0,
         total_study_time=total_study_time,
         completed_videos=video_completed,
-        total_videos=len(data_store.video_progress),
-        bookmarked_sections=8,  # Mock data
-        current_streak=5,  # Mock data
-        longest_streak=12,  # Mock data
-        last_activity=max(q["completed_at"] for q in data_store.quiz_results) if data_store.quiz_results else None
+        total_videos=len(video_progress),
+        bookmarked_sections=8,  # TODO: Replace with real bookmarks count
+        current_streak=5,  # TODO: Implement streak logic
+        longest_streak=12,  # TODO: Implement streak logic
+        last_activity=max((q["completed_at"] for q in quiz_results), default=None)
     )
 
 @router.get("/topic-performance", response_model=List[TopicPerformance])

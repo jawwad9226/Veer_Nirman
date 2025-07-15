@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ChevronDown, ChevronRight, BookOpen, FileText, Bookmark, ExternalLink, Tag, Sparkles } from 'lucide-react'
+import { ChevronDown, ChevronRight, BookOpen, FileText, Bookmark, ExternalLink, Tag, Sparkles, XCircle } from 'lucide-react'
 
 import { SyllabusData, SyllabusChapter, SyllabusSection, BookmarkResponse, SyllabusStructureProps } from './types'
 import { createBookmark } from './api'
@@ -70,7 +70,7 @@ export default function SyllabusStructure({ syllabusData, onBookmarkAdd, onViewP
         {syllabusData.chapters.map((chapter, chapterIndex) => {
           const isExpanded = expandedChapters.has(chapter.title)
           return (
-            <div key={`${chapter.title}-${chapterIndex}`} className="border border-gray-200 rounded-xl overflow-hidden">
+            <div key={`${chapter.title}-${chapterIndex}`} className="border border-gray-200 rounded-xl overflow-hidden relative">
               {/* Chapter Header */}
               <div className="w-full p-4 md:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 flex flex-col sm:flex-row sm:items-center sm:justify-between text-left gap-2 sm:gap-0">
                 <div className="flex items-center w-full sm:w-auto">
@@ -110,7 +110,16 @@ export default function SyllabusStructure({ syllabusData, onBookmarkAdd, onViewP
 
               {/* Chapter Content */}
               {isExpanded && (
-                <div className="border-t border-gray-200">
+                <div className="border-t border-gray-200 relative">
+                  {/* Floating Close Button */}
+                  <button
+                    className="fixed md:absolute z-30 bottom-8 right-8 md:bottom-4 md:right-4 bg-white border border-gray-300 shadow-lg rounded-full p-3 flex items-center justify-center hover:bg-gray-100 transition-all"
+                    style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.10)' }}
+                    aria-label={`Close ${chapter.title}`}
+                    onClick={() => toggleChapter(chapter.title)}
+                  >
+                    <XCircle className="h-7 w-7 text-red-500" />
+                  </button>
                   {chapter.sections.map((section, sectionIndex) => {
                     const sectionKey = `${chapter.title}-${section.name}`
                     const isBookmarking = bookmarkingSection === sectionKey

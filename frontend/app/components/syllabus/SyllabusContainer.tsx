@@ -8,6 +8,7 @@ import SyllabusSearch from './SyllabusSearch'
 import BookmarkManager from './BookmarkManager'
 import PDFViewer from './PDFViewer'
 import QuizSetup from '../quiz/QuizSetup'
+import { useRouter } from 'next/navigation'
 import { 
   SyllabusData, 
   SyllabusUIState, 
@@ -16,7 +17,12 @@ import {
 } from './types'
 import { getSyllabusChapters, getBookmarks } from './api'
 
-export default function SyllabusContainer() {
+interface SyllabusContainerProps {
+  onTakeAssessment?: (topic: string, difficulty: string, numQuestions: number, timedMode?: boolean, customData?: any) => void;
+}
+
+export default function SyllabusContainer({ onTakeAssessment }: SyllabusContainerProps) {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<SyllabusViewMode>({ type: 'structure' })
   const [syllabusData, setSyllabusData] = useState<SyllabusData | null>(null)
   const [uiState, setUiState] = useState<SyllabusUIState>({
@@ -232,11 +238,24 @@ export default function SyllabusContainer() {
 
         {viewMode.type === 'assessment' && assessmentTopic && (
           <div className="p-6">
-            {/* Lazy import or direct import of QuizSetup, pass assessmentTopic as prop */}
-            {/* @ts-ignore - If QuizSetup expects more props, adjust accordingly */}
+            <div className="flex justify-between items-center mb-4">
+              <button
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium"
+                onClick={() => {
+                  setViewMode({ type: 'structure' });
+                  setAssessmentTopic(null);
+                }}
+              >
+                ← Back to Syllabus
+              </button>
+            </div>
             <QuizSetup
               assessmentTopic={assessmentTopic}
-              onStartQuiz={() => {}}
+              onStartQuiz={(topic, difficulty, numQuestions, timedMode, customData) => {
+                if (onTakeAssessment) {
+                  onTakeAssessment(topic, difficulty, numQuestions, timedMode, customData);
+                }
+              }}
               loading={false}
             />
           </div>

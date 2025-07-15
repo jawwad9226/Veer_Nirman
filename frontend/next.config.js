@@ -1,15 +1,20 @@
 /** @type {import('next').NextConfig} */
 
-const nextConfig = {
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+})
+
+module.exports = withPWA({
   output: 'export',
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
   distDir: 'out',
-  
   // Production optimizations
   poweredByHeader: false,
   compress: true,
-  
   // Image optimization for static export
   images: {
     unoptimized: true,
@@ -31,10 +36,8 @@ const nextConfig = {
       },
     ],
   },
-
   // Headers are not supported with static export
   // Security headers will be handled by Firebase Hosting
-  
   // Development settings
   ...(process.env.NODE_ENV === 'development' && {
     allowedDevOrigins: [
@@ -54,6 +57,4 @@ const nextConfig = {
   //     },
   //   ]
   // },
-}
-
-module.exports = nextConfig
+})

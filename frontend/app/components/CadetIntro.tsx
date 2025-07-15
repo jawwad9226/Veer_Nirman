@@ -197,18 +197,7 @@ export default function CadetIntro({ onCertificateSelect, preSelectedCertificate
                 </div>
               )}
               
-              {/* Admin Access */}
-              <div className="mb-4">
-                <button
-                  onClick={() => onCertificateSelect('ADMIN')}
-                  className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:from-red-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 text-xs sm:text-sm"
-                >
-                  Continue as Admin 🔧
-                </button>
-                <p className="text-gray-500 text-xs mt-1 px-4">
-                  For administrative access
-                </p>
-              </div>
+
               
               <p className="text-gray-600 text-xs sm:text-sm px-4">
                 Don't worry, you can always change your certificate level later in settings

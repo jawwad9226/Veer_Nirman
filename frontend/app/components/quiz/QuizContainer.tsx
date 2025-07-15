@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import QuizSetup from './QuizSetup'
 import QuizTaking from './QuizTaking'
 import QuizResults from './QuizResults'
@@ -9,12 +10,27 @@ import { generateQuiz, submitQuiz } from './api'
 
 type QuizStep = 'setup' | 'taking' | 'results'
 
-export default function QuizContainer() {
+export default function QuizContainer({ assessmentProps, clearAssessmentProps }: { assessmentProps?: any, clearAssessmentProps?: () => void }) {
   const [currentStep, setCurrentStep] = useState<QuizStep>('setup')
   const [quiz, setQuiz] = useState<QuizResponse | null>(null)
   const [results, setResults] = useState<QuizSubmissionResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [startTime, setStartTime] = useState<Date | null>(null)
+
+  // Auto-start quiz if assessmentProps are present
+  useEffect(() => {
+    if (assessmentProps && currentStep === 'setup') {
+      handleStartQuiz(
+        assessmentProps.topic,
+        assessmentProps.difficulty,
+        assessmentProps.numQuestions,
+        assessmentProps.timedMode,
+        assessmentProps.customData
+      );
+      if (clearAssessmentProps) clearAssessmentProps();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assessmentProps]);
 
   const handleStartQuiz = async (
     topic: string, 
@@ -57,6 +73,31 @@ export default function QuizContainer() {
       // Merge all_questions into results for frontend review
       setResults({ ...resultsData, all_questions })
       setCurrentStep('results')
+
+      // --- Send analytics summary to backend (non-blocking) ---
+      const analyticsPayload = {
+        quiz_id: quiz.metadata.quiz_id,
+        topic: quiz.metadata.topic,
+        difficulty: quiz.metadata.difficulty,
+        score: resultsData.score,
+        correct_answers: resultsData.correct_answers,
+        wrong_answers: resultsData.wrong_answers,
+        total_questions: resultsData.total_questions,
+        duration_seconds: resultsData.duration_seconds,
+        submitted_at: resultsData.submitted_at,
+        // Optionally add user_id if available (for admin analytics)
+      }
+      // Fire and forget, don't block UI
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/quiz`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(analyticsPayload),
+        credentials: 'include',
+      }).catch((err) => {
+        // Log but don't alert user
+        console.warn('Failed to send analytics:', err)
+      })
+      // --- End analytics ---
     } catch (error) {
       console.error('Failed to submit quiz:', error)
       alert('Failed to submit quiz. Please try again.')

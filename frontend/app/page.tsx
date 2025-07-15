@@ -7,6 +7,9 @@ import Header from './components/Header'
 import NotificationTicker from './components/NotificationTicker'
 import BannerSection from './components/BannerSection'
 import RoleBasedFeatures from './components/RoleBasedFeatures'
+import dynamic from 'next/dynamic'
+// Dynamically import the analytics dashboard for client-side rendering
+const AnalyticsDashboard = dynamic(() => import('./admin/analytics-dashboard'), { ssr: false })
 import CommonFeatures from './components/CommonFeatures'
 import FloatingChat from './components/FloatingChat'
 import TabNavigation from './components/TabNavigation'
@@ -26,67 +29,53 @@ export default function HomePage() {
   const [selectedCertificate, setSelectedCertificate] = useState<'A' | 'B' | 'C' | null>(null)
   const [userRole, setUserRole] = useState<'admin' | 'instructor' | 'cadet'>('cadet')
 
-  // Check intro completion status for authenticated user
+  // Always show intro on reload: reset hasCompletedIntro to false on user change
   useEffect(() => {
     if (user) {
-      // Set user role from authenticated user data
-      setUserRole(user.role as 'admin' | 'instructor' | 'cadet')
-      
-      // Check if user has completed intro (can be based on profile or localStorage)
-      const savedIntroStatus = localStorage.getItem(`intro_completed_${user.id}`)
-      if (savedIntroStatus === 'true') {
-        setHasCompletedIntro(true)
-        // Get saved certificate preference
-        const savedCertificate = localStorage.getItem(`certificate_${user.id}`)
-        if (savedCertificate && ['A', 'B', 'C'].includes(savedCertificate)) {
-          setSelectedCertificate(savedCertificate as 'A' | 'B' | 'C')
-        }
-      }
+      setUserRole(user.role as 'admin' | 'instructor' | 'cadet');
+      setHasCompletedIntro(false);
+      setSelectedCertificate(null);
+    } else {
+      setHasCompletedIntro(false);
+      setSelectedCertificate(null);
+      setUserRole('cadet');
     }
-  }, [user])
+  }, [user]);
 
-  // Mock user data - will be replaced with actual auth
-  const [localUser, setLocalUser] = useState({
+  // Local user for UI display, always in sync with user/userRole
+  const localUser = user ? {
+    name: userRole === 'admin' ? 'Admin User' : user.name || 'Cadet User',
+    role: userRole,
+    avatar: user.photoURL || '/file.svg',
+    unit: userRole === 'admin' ? 'NCC Administration' : user.unit || 'NCC Unit',
+    certificate: selectedCertificate
+  } : {
     name: 'Cadet User',
     role: userRole,
     avatar: '/file.svg',
     unit: 'NCC Unit',
     certificate: selectedCertificate
-  })
-
-  // Update user data when role or certificate changes
-  useEffect(() => {
-    if (user) {
-      setLocalUser({
-        name: userRole === 'admin' ? 'Admin User' : user.name || 'Cadet User',
-        role: userRole,
-        avatar: user.photoURL || '/file.svg',
-        unit: userRole === 'admin' ? 'NCC Administration' : user.unit || 'NCC Unit',
-        certificate: selectedCertificate
-      })
-    }
-  }, [user, userRole, selectedCertificate])
+  }
 
   const [activeTab, setActiveTab] = useState('home')
+  // Assessment state for quiz
+  const [assessmentProps, setAssessmentProps] = useState<null | {
+    topic: string;
+    difficulty: string;
+    numQuestions: number;
+    timedMode?: boolean;
+    customData?: any;
+  }>(null)
 
-  const handleCertificateSelect = (certificate: 'A' | 'B' | 'C' | 'ADMIN') => {
-    if (!user) return
-    
-    if (certificate === 'ADMIN') {
-      // Continue as Admin
-      setUserRole('admin')
-      setSelectedCertificate('A') // Default certificate for admin
-      localStorage.setItem(`user_role_${user.id}`, 'admin')
-      localStorage.setItem(`certificate_${user.id}`, 'A')
-    } else {
-      // Continue as Cadet with selected certificate
-      setSelectedCertificate(certificate)
-      setUserRole('cadet')
-      localStorage.setItem(`certificate_${user.id}`, certificate)
-      localStorage.setItem(`user_role_${user.id}`, 'cadet')
-    }
-    localStorage.setItem(`intro_completed_${user.id}`, 'true')
-    setHasCompletedIntro(true)
+  const handleCertificateSelect = (certificate: 'A' | 'B' | 'C') => {
+    if (!user) return;
+    setSelectedCertificate(certificate);
+    // Only set to 'cadet' if not already admin or instructor
+    setUserRole(prev => (prev === 'admin' || prev === 'instructor') ? prev : 'cadet');
+    // Optionally, you can still store the certificate if needed:
+    // localStorage.setItem(`certificate_${user.id}`, certificate);
+    // localStorage.setItem(`user_role_${user.id}`, userRole);
+    setHasCompletedIntro(true);
   }
 
   // Show loading screen while checking authentication
@@ -113,22 +102,22 @@ export default function HomePage() {
   }
 
   const handleCertificateChange = () => {
-    // Clear saved certificate and role, then show intro again
-    localStorage.removeItem('ncc_certificate')
-    localStorage.removeItem('ncc_user_role')
-    setSelectedCertificate(null)
-    setUserRole('cadet')
-    setHasCompletedIntro(false)
+    if (!user) return;
+    setSelectedCertificate(null);
+    setUserRole('cadet');
+    setHasCompletedIntro(false);
   }
 
   // Force intro to show (useful for testing)
   const showIntroAgain = () => {
-    handleCertificateChange()
+    handleCertificateChange();
   }
 
   const handleFeatureClick = (featureTitle: string) => {
     if (featureTitle === 'Content Studio') {
       setActiveTab('video-admin')
+    } else if (featureTitle === 'Security Console') {
+      setActiveTab('admin-dashboard')
     }
     // Add more feature handlers as needed
   }
@@ -142,79 +131,68 @@ export default function HomePage() {
         backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
       }}>
-      {/* Fixed Header */}
-      <Header user={localUser} setActiveTab={setActiveTab} />
-      {/* Notification Ticker */}
-      <NotificationTicker />
-      {/* Main Content Area */}
-      <div className="flex flex-col lg:flex-row relative z-10">
-        {/* Desktop Sidebar Navigation */}
-        <div className="hidden lg:block">
+        {/* Fixed Header */}
+        <Header user={localUser} setActiveTab={setActiveTab} />
+        {/* Notification Ticker */}
+        <NotificationTicker />
+        {/* Main Content Area */}
+        <div className="flex flex-col lg:flex-row relative z-10">
+          {/* Desktop Sidebar Navigation */}
+          <div className="hidden lg:block">
+            <TabNavigation 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab}
+              position="sidebar"
+            />
+          </div>
+          {/* Main Content */}
+          <main className="flex-1 lg:ml-20 pb-20 lg:pb-8 header-aware-content">
+            {activeTab === 'home' && (
+              <>
+                {/* Banner Section */}
+                <BannerSection user={localUser} onCertificateChange={handleCertificateChange} />
+                {/* Role-based Features */}
+                {(userRole === 'admin' || userRole === 'instructor') && (
+                  <RoleBasedFeatures userRole={userRole} onFeatureClick={handleFeatureClick} />
+                )}
+                {/* Common Features */}
+                <CommonFeatures setActiveTab={setActiveTab} />
+              </>
+            )}
+
+            {activeTab === 'admin-dashboard' && userRole === 'admin' && (
+              <div className="mt-8">
+                <AnalyticsDashboard />
+              </div>
+            )}
+
+            {activeTab === 'quiz' && <QuizContainer assessmentProps={assessmentProps} clearAssessmentProps={() => setAssessmentProps(null)} />}
+            {activeTab === 'videos' && <VideoContainer />}
+            {activeTab === 'video-admin' && (userRole === 'admin' || userRole === 'instructor') && (
+              <VideoAdmin userRole={userRole} />
+            )}
+            {activeTab === 'syllabus' && (
+              <SyllabusContainer
+                onTakeAssessment={(topic, difficulty, numQuestions, timedMode, customData) => {
+                  setAssessmentProps({ topic, difficulty, numQuestions, timedMode, customData });
+                  setActiveTab('quiz');
+                }}
+              />
+            )}
+            {activeTab === 'ncc-info' && <NCCInfoContainer />}
+            {activeTab === 'dashboard' && <ProgressDashboard />}
+          </main>
+        </div>
+        {/* Mobile Bottom Navigation (default) */}
+        <div className="lg:hidden">
           <TabNavigation 
             activeTab={activeTab} 
             setActiveTab={setActiveTab}
-            position="sidebar"
+            position="bottom"
           />
         </div>
-        {/* Main Content */}
-        <main className="flex-1 lg:ml-20 pb-20 lg:pb-8 header-aware-content">
-          {activeTab === 'home' && (
-            <>
-              {/* Banner Section */}
-              <BannerSection user={localUser} onCertificateChange={handleCertificateChange} />
-              {/* Role-based Features */}
-              {(user.role === 'admin' || user.role === 'instructor') && (
-                <RoleBasedFeatures userRole={user.role} onFeatureClick={handleFeatureClick} />
-              )}
-              {/* Common Features */}
-              <CommonFeatures setActiveTab={setActiveTab} />
-            </>
-          )}
-          
-          {activeTab === 'quiz' && (
-            <QuizContainer />
-          )}
-          
-          {activeTab === 'videos' && (
-            <VideoContainer />
-          )}
-
-          {activeTab === 'video-admin' && (user.role === 'admin' || user.role === 'instructor') && (
-            <VideoAdmin userRole={user.role} />
-          )}
-          
-          {activeTab === 'syllabus' && (
-            <SyllabusContainer />
-          )}
-          
-          {activeTab === 'ncc-info' && (
-            <NCCInfoContainer />
-          )}
-          
-          {activeTab === 'dashboard' && (
-            <ProgressDashboard />
-          )}
-          
-          {activeTab === 'settings' && (
-            <div className="max-w-4xl mx-auto p-6">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Settings</h2>
-                <p className="text-gray-600">Settings content coming soon...</p>
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
-      {/* Mobile Bottom Navigation (default) */}
-      <div className="lg:hidden">
-        <TabNavigation 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab}
-          position="bottom"
-        />
-      </div>
-      {/* Floating Chat Button */}
-      <FloatingChat />
+        {/* Floating Chat Button */}
+        <FloatingChat />
       </div>
     </ProtectedRoute>
   )

@@ -71,7 +71,8 @@ export async function registerWithEmailPassword(data: RegisterRequest): Promise<
     })
 
     // Create user document in Firestore
-    const userData: User = {
+    // Build userData and remove undefined fields (like photoURL)
+    const userData: any = {
       id: firebaseUser.uid,
       name: data.name,
       email: data.email,
@@ -80,13 +81,15 @@ export async function registerWithEmailPassword(data: RegisterRequest): Promise<
       phone: data.phone,
       created_at: new Date().toISOString(),
       last_login: new Date().toISOString(),
-      photoURL: firebaseUser.photoURL || undefined,
       regimentalNumber: data.regimentalNumber,
       nccState: data.nccState,
       nccDivision: data.nccDivision,
       nccWing: data.nccWing,
       nccYear: data.nccYear,
       isVerifiedCadet: data.isVerifiedCadet
+    };
+    if (firebaseUser.photoURL) {
+      userData.photoURL = firebaseUser.photoURL;
     }
 
     // Save to Firestore

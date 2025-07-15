@@ -3,10 +3,21 @@
 import React, { useState, useRef, useEffect } from "react"
 
 export default function ChatAssistant({ user }: { user: any }) {
-  // Message state
-  const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hello! I am your NCC AI Assistant. How can I help you today?" }
-  ])
+  // Message state with localStorage persistence
+  const defaultMessage = { role: "assistant", content: "Hello! I am your NCC AI Assistant. How can I help you today?" }
+  const [messages, setMessages] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ncc_chat_history")
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch {
+          return [defaultMessage]
+        }
+      }
+    }
+    return [defaultMessage]
+  })
   const [input, setInput] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [file, setFile] = useState<File | null>(null)
@@ -18,21 +29,15 @@ export default function ChatAssistant({ user }: { user: any }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Fetch chat history on mount
+  // Save chat history to localStorage on every change
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await fetch("/api/chat/history")
-        const data = await res.json()
-        if (Array.isArray(data) && data.length > 0) {
-          setMessages(data)
-        }
-      } catch {
-        // Ignore errors for now
-      }
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ncc_chat_history", JSON.stringify(messages))
     }
-    fetchHistory()
-  }, [])
+  }, [messages])
+
+  // Count user+assistant message pairs (excluding initial assistant message)
+  const chatCount = Math.floor((messages.length - 1) / 2)
 
   // File upload handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,21 +51,24 @@ export default function ChatAssistant({ user }: { user: any }) {
     e.preventDefault()
     if (!input.trim() && !file) return
     setIsSending(true)
+    let userMsgAdded = false
     if (input.trim()) {
-      setMessages((prev) => [...prev, { role: "user", content: input }])
+      setMessages((prev) => {
+        userMsgAdded = true
+        return [...prev, { role: "user", content: input }]
+      })
     }
     if (file) {
       setMessages((prev) => [...prev, { role: "user", content: `Sent a file: ${file.name}` }])
     }
     setInput("")
-    // Call backend (placeholder)
     try {
       let reply = ""
       if (file) {
         const formData = new FormData()
         formData.append("file", file)
         if (input.trim()) formData.append("message", input)
-        const res = await fetch("/api/chat/upload", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/upload`, {
           method: "POST",
           body: formData
         })
@@ -68,7 +76,7 @@ export default function ChatAssistant({ user }: { user: any }) {
         reply = data.reply || "File received."
         setFile(null)
       } else {
-        const res = await fetch("/api/chat", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: input })
@@ -83,12 +91,14 @@ export default function ChatAssistant({ user }: { user: any }) {
     setIsSending(false)
   }
 
-  // Clear chat handler
-  const clearChat = async () => {
-    await fetch("/api/chat/clear", { method: "POST" })
-    setMessages([
-      { role: "assistant", content: "Hello! I am your NCC AI Assistant. How can I help you today?" }
-    ])
+  // Local clear chat handler (no backend call)
+  const clearChat = () => {
+    setMessages([defaultMessage])
+    setFile(null)
+    setInput("")
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("ncc_chat_history")
+    }
   }
 
   // Sample questions
@@ -116,23 +126,28 @@ export default function ChatAssistant({ user }: { user: any }) {
     <div className="w-full max-w-2xl mx-auto flex flex-col h-[70vh] bg-white/90 rounded-xl shadow-lg border border-gray-100 overflow-hidden" role="region" aria-label="Chat Assistant">
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4" tabIndex={0} aria-live="polite">
-        {/* Top bar: Clear chat & Download transcript */}
-        <div className="flex justify-between mb-2">
-          <button
-            onClick={clearChat}
-            className="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded px-3 py-1 font-semibold border border-blue-100 shadow-sm transition"
-            disabled={isSending}
-            aria-label="Clear chat history"
-          >
-            Clear Chat
-          </button>
-          <button
-            onClick={downloadTranscript}
-            className="text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 rounded px-3 py-1 font-semibold border border-gray-200 shadow-sm transition"
-            aria-label="Download chat transcript"
-          >
-            Download Transcript
-          </button>
+        {/* Top bar: Clear chat, Download transcript, Chat count */}
+        <div className="flex justify-between mb-2 items-center">
+          <div className="flex gap-2">
+            <button
+              onClick={clearChat}
+              className="text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded px-3 py-1 font-semibold border border-blue-100 shadow-sm transition"
+              disabled={isSending}
+              aria-label="Clear chat history"
+            >
+              Clear Chat
+            </button>
+            <button
+              onClick={downloadTranscript}
+              className="text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 rounded px-3 py-1 font-semibold border border-gray-200 shadow-sm transition"
+              aria-label="Download chat transcript"
+            >
+              Download Transcript
+            </button>
+          </div>
+          <div className="text-xs text-gray-500" aria-label="Chat count">
+            Chats: {chatCount}
+          </div>
         </div>
         {/* Sample questions */}
         <div className="flex flex-wrap gap-2 mb-3" aria-label="Sample questions">
