@@ -1,0 +1,16 @@
+lib/
+node_modules/
+*.js
+*.d.ts
+.git/
+.firebase/
+.vscode/
+dist/
+build/
+coverage/
+.nyc_output/
+*.log
+*.tgz
+*.tar.gz
+.DS_Store
+Thumbs.db
