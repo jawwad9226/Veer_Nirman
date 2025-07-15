@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
     "@heroicons/react": "^2.0.18",
     "@next-auth/firebase-adapter": "^2.0.1",
     "autoprefixer": "^10.4.16",
