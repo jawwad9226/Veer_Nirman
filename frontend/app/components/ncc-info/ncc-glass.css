@@ -1,0 +1,226 @@
+/* NCC Info Component Styles with Glassmorphism */
+
+.ncc-glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+  margin: 1rem;
+}
+
+.ncc-tab-button {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ncc-tab-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ncc-tab-button.active {
+  background: rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: #1e40af;
+}
+
+.ncc-content-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.ncc-content-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Text content areas with solid white background */
+.ncc-text-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+}
+
+.ncc-activity-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.ncc-activity-card:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.ncc-activity-card.camps {
+  border-left: 4px solid #10b981;
+}
+
+.ncc-activity-card.social {
+  border-left: 4px solid #f59e0b;
+}
+
+.ncc-activity-card.cultural {
+  border-left: 4px solid #8b5cf6;
+}
+
+.ncc-commandment-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ncc-commandment-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ef4444);
+  border-radius: 18px 18px 0 0;
+}
+
+.ncc-commandment-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.ncc-song-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.ncc-song-card:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.ncc-lyrics {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+.ncc-battalion-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.ncc-battalion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.ncc-company-card {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.ncc-company-card:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateX(5px);
+}
+
+.bounce-icon {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+  }
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .ncc-glass {
+    padding: 1rem;
+    margin: 0.5rem;
+    border-radius: 16px;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .ncc-content-card {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+  
+  .ncc-activity-card {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+  
+  .ncc-battalion-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+}

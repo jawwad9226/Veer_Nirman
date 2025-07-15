@@ -1,0 +1,281 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NCC ABYAS Global Styles */
+:root {
+  --ncc-red: #DC2626;
+  --ncc-blue: #2563EB;
+  --ncc-skyblue: #0EA5E9;
+  --ncc-yellow: #FACC15;
+  
+  /* Header System Heights */
+  --header-height: 5rem; /* 80px - header py-4 (16px) + content height */
+  --ticker-height: 2.5rem; /* 40px - ticker py-2 (8px) + content height */
+  --combined-header-height: 7.5rem; /* 120px - header + ticker */
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ncc-blue);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ncc-skyblue);
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Mobile-first touch targets */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Notification ticker animation */
+@keyframes scroll {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* CadetIntro Animations */
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+    transform: rotate(-20deg);
+  }
+}
+
+@keyframes revealLogo {
+  0% {
+    transform: rotate(-20deg) scaleX(0);
+  }
+  100% {
+    transform: rotate(-20deg) scaleX(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Intro Animation Classes */
+.animate-draw-line {
+  animation: drawLine 1s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+#reveal-rect {
+  transform: rotate(-20deg) scaleX(0);
+  transform-origin: 512px 512px;
+  animation: revealLogo 1.5s linear forwards;
+  animation-delay: 1.2s;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animate-slide-up-delay {
+  animation: slideUp 0.8s ease-out forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+.animate-fade-in-delay {
+  animation: fadeIn 0.8s ease-out forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+/* Header Awareness Utilities */
+.header-aware-content {
+  padding-top: var(--combined-header-height);
+  min-height: calc(100vh - var(--combined-header-height));
+}
+
+.header-aware-modal {
+  padding-top: var(--combined-header-height);
+}
+
+.header-aware-fixed {
+  top: var(--combined-header-height);
+}
+
+/* Responsive header adjustments */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 4.5rem; /* Slightly smaller on mobile */
+    --combined-header-height: 7rem; /* 112px - adjusted for mobile */
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-height: 5.5rem; /* Larger on desktop */
+    --combined-header-height: 8rem; /* 128px - adjusted for desktop */
+  }
+}
+
+/* Loading Entertainment Animations */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  25% {
+    width: 30%;
+  }
+  50% {
+    width: 60%;
+  }
+  75% {
+    width: 80%;
+  }
+  100% {
+    width: 95%;
+  }
+}
+
+.animate-progress {
+  animation: progress 8s ease-out infinite;
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+.slide-in-from-top {
+  animation-name: slide-in-from-top;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+.duration-500 {
+  animation-duration: 500ms;
+}
+
+.duration-700 {
+  animation-duration: 700ms;
+}
+
+/* Certificate Card Hover Effects */
+.certificate-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.certificate-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Quiz loading entertainment animations */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 8s ease-in-out infinite;
+}

@@ -1,0 +1,13 @@
+{
+  "test@example.com": {
+    "id": "55502f40dc8b7c769880b10874abc9d0",
+    "name": "Test Cadet",
+    "email": "test@example.com",
+    "unit": "1st Battalion NCC",
+    "role": "cadet",
+    "phone": null,
+    "hashed_password": "$2b$12$5Mi.Y36OSA4lpzOz6WeV0.YoujrDt7.sFME4Gg8gSvSrDOaWtwfue",
+    "created_at": "2025-07-14T14:07:44.192294",
+    "last_login": "2025-07-14T14:08:35.719962"
+  }
+}

@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // User profile images and documents
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Public content accessible to all authenticated users
+    match /public/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && 
+        get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['admin', 'instructor'];
+    }
+    
+    // Admin uploads
+    match /admin/{allPaths=**} {
+      allow read, write: if request.auth != null && 
+        get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
